@@ -1,35 +1,5 @@
-  //---------------------------Object oriented Style ----------------------------------------
 
- var columnbian={ name : 'columnbian',basePrice :5};
-var indian={ name : 'indian',basePrice :15};
-var american={ name : 'american',basePrice :10};
-
-function	printPrice(coffee,	size)	{
-		if	(size	==	'small')	{
-				var	price	=	coffee.basePrice	+	2;
-		}
-		else	if	(size	==	'medium')	{
-				var	price	=	coffee.basePrice	+	4;
-		}
-		else	{
-				var	price	=	coffee.basePrice	+	6;
-		}
-		
-				var	node	=	document.createElement("li");
-		var	label	=	coffee.name	+	'	'	+	size;
-		var	textnode	=	document.createTextNode(label+'	price:	$'+price);
-		node.appendChild(textnode);
-		document.getElementById('products').appendChild(node);
-}
-
-
-
-printPrice(columnbian,	'small');
-printPrice(columnbian,	'medium');
-
-  //---------------------------END Object oriented Style ----------------------------------------
-
-  	//---------------------------Functional Style -------------------------------------------------
+//---------------------------Functional Style -------------------------------------------------
 
 //Factories
 
@@ -105,3 +75,90 @@ console.log(shadesOfBlue(123,	0));			//	'7b00ff'
 console.log(shadesOfBlue(100,	200));	//	'64c8ff'
 var	shadesOfGreen	=	num2Hex.partialApplyRight(255,	0);
 console.log(shadesOfGreen(123));
+
+//------------------------------------------------------------------------------------------------------------------------------
+
+
+//Currying 
+
+function rgb2Hex(r,g,b){
+	return '#' + num2Hex(r) +num2Hex(g) +num2Hex(b);
+}
+
+Function.prototype.curry=function(numArgs){
+
+	var func = this;
+	numArgs = numArgs || func.length;
+
+	//recursively aquire the arguments
+
+	function subCurry(prev){
+
+		return function(arg)
+		{
+			var args = prev.concat(arg);
+
+			if(args.length<numArgs)
+			{
+				//recursive case we still need more arguments
+				return subCurry(args);
+			}
+			else{
+				//base case apply function
+				return func.apply(this,args);
+			}
+		};
+
+		
+	}
+			return subCurry([]);
+}
+
+var	hexColors	=	rgb2Hex.curry();
+console.log(hexColors(11));	//	returns	a	curried	function
+console.log(hexColors(11,12,123));	//	returns	a	curried	function
+console.log(hexColors(11)(12)(123));	//	returns	#0b0c7b
+console.log(hexColors(210)(12)(0));	//	returns	#d20c00
+
+//-------------------------------------------------------------------------------------------------------------------------------
+
+//Function composition
+
+Function.prototype.compose	=	function(prevFunc)	{
+		var	nextFunc	=	this;
+		return	function()	{
+				return	nextFunc.call(this,prevFunc.apply(this,arguments));
+		}
+}
+
+function	function1(a){return	a	+	'	1';}
+function	function2(b){return	b	+	'	2';}
+function	function3(c){return	c	+	'	3';}
+var	composition	=	function3.compose(function2).compose(function1);
+
+console.log(composition('count'));	
+
+
+//recursion
+
+/*function fib(n) {
+  if (n <= 1){
+    return n;
+  } else {
+    return fib(n-1) + fib(n - 2);
+  }
+}*/
+'use strict';
+function fibIterRecursive(n, a, b){
+  if (n === 0) {
+    return b;
+  } else {
+    return fibIterRecursive(n-1, a + b, a);
+  }
+};
+
+function fib(n){
+  return fibIterRecursive(n, 1, 0);
+}
+
+fib(5);
